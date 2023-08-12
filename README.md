@@ -1,7 +1,9 @@
 # 간단한 회원가입-로그인 웹페이지 구현
-## 1. 사용 언어: HTML, CSS, JavaScript
+## 1. 사용 언어:
+ HTML, CSS, JavaScript
 
-## 2. API 사용: OpenWeather API, Google Re-Captcha API
+## 2. API 사용: 
+OpenWeather API, Google Re-Captcha API
 
 ## 3. 구현
 
