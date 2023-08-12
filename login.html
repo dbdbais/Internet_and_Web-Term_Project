@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+          @media (max-width: 900px) { /* 모바일 환경에서 헤더에 텍스트 추가 */
+            h1::before{
+                content: "Mobile ";
+                color:blue;
+            }
+            body{
+                width :700px;
+                transform: scale(0.5); /* 요소를 80% 크기로 축소 */
+              transform-origin: top; /* 축소의 기준점을 상단으로 설정 */
+            }
+
+            .loginForm, #registerForm {        /* 크기조정 */
+                width: 200px;
+                margin: 0px;
+            }
+            input[type="submit"],       /* 크기조정 */
+            input[type="reset"],
+            input[type="text"],
+            input[type="password"] {
+                width: 30%;
+            }
+        
+        }
+        body{               /* 가운데 정렬 column 정렬을 위한 css */
+            max-width: 1060px;
+            font-family: Arial, sans-serif;
+            align-items: center;
+            margin: 0 auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        input:invalid {
+        border: 2px solid red;  /* input이 패턴에 맞지 않을 경우 border 테두리를 빨간색으로 변경 */
+         }
+         .error{       /*  error시 출력할 statement */
+            font-size: 0.5em;
+            margin-left: 50px;
+            color: red;
+            visibility: hidden;
+         }
+         .try{      /* 시도 횟수 출력 */
+            font-size: 0.5em;
+            margin-left: 50px;
+            color: blue;
+            visibility: hidden;
+         }
+         #count{    /* 시도횟수 변수 */
+            display: none;
+         }
+        
+        input:invalid+.error{   /* invalid시 visible combinator */
+            visibility:visible;
+        }
+        #registerForm{  /* 회원가입 폼을 받는 영역 숨어있다가 필요 시 js에서 visibility 변경 */
+            visibility: hidden;
+            width: fit-content;
+            height: fit-content;
+            padding: 75px;
+            margin: 10px;
+            background-color: whitesmoke;
+            align-items: center;
+            border: 1px solid;
+        }
+        #registerForm * {   /* 폼 안의 element 띄우는 css combinator */    
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+        .g-recaptcha{  /*  구글 캡차 API 평소에는 숨어있다가 5회틀렸을 시 등장 */
+            display: none ;
+        }
+        .loginForm {    /*  로그인 창 설정 css */
+            width: fit-content;
+            height: fit-content;
+            padding: 75px;
+            margin: 5px;
+            background-color: whitesmoke;
+            text-align: center;
+            align-items: center;
+            border: 1px solid;
+        }
+        .loginForm * {    /* 폼 안의 element 띄우는 css combinator */
+    margin-top: 10px;
+    margin-bottom: 10px;
+    }
+        form {  /* 폼 간격 */
+      margin: 20px;
+    }
+    
+    label {     /* 라벨 오른쪽으로 align */
+    width: 50px;
+      display: inline-block;
+      text-align: right;
+    }
+    
+    input[type="text"],     /* input text나 password 설정 바꿔준다. */
+    input[type="password"], /* attrubute selecter */
+    select {
+      width: 200px;
+      padding: 8px 8px;
+      margin-bottom: 10px;
+    }
+    
+    input[type="submit"],    /* input submit과 reset 설정 바꿔준다. */
+    input[type="reset"] {
+        margin-left: 40px;
+      padding: 7px 10px;
+      background-color: #4CAF50;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    
+    input[type="submit"]:hover,      /* input submit과 reset 버튼 위에 마우스가 올라갔을 때 설정 바꿔준다. */
+    input[type ="reset"]:hover {
+      background-color: #45a049;
+    }
+ 
+
+    </style>
+    <script>
+
+        function USER(ID,Password,City,Gender){ //사용자 객체 생성자
+            this.ID= ID;
+            this.Password = Password;
+            this.City = City
+            this.Gender = Gender;
+        }
+        function register(){    //회원가입 버튼을 누르면 작동, 페이지가 원래대로 돌아가는 것을 막고, form을 visible하게 바꿈
+            event.preventDefault();
+            var form= document.getElementById("registerForm");
+            form.style.visibility = "visible";
+            document.getElementsByClassName("error")[0].innerText= "알파벳이나 숫자의 형태로 입력 하세요.";
+            document.getElementsByClassName("error")[1].innerText= "알파벳이나 숫자의 형태로 입력 하세요.";
+        }
+        function writeUser(){ //회원가입 폼에서 입력값을 전부 입력 후 제출하면 element를 가져와서 객체 생성하고 로컬 스토리지에 집어넣는 함수.
+            event.preventDefault();
+            var regID = document.getElementById("regID");
+            var regPW = document.getElementById("regPW");
+            var city = document.getElementById("cities").value;
+            var genderList = document.getElementsByName("regGender");
+            var gender;
+            genderList.forEach((node)=>{
+                if(node.checked){
+                    gender= node.value;
+                }
+            })
+
+            if (validateInputs(regID,regPW)) { //정상값이 들어오지 않았다면 폼을 제출하지 않고 다시 입력받음
+                return;
+            }
+            document.getElementsByClassName("error")[0].innerText= "";
+            document.getElementsByClassName("error")[1].innerText= "";
+            var user = new USER(regID.value,regPW.value,city,gender);
+            localStorage.setItem("user",JSON.stringify(user)); //로컬 스토리지에 문자열 형태로 저장
+            alert("회원가입 완료");
+            document.getElementById("registerForm").style.visibility="hidden"; //폼이 더 이상 필요없으니 감춘다.
+            var form= document.getElementById("register");
+            form.reset(); //폼 값 초기화
+            
+        }
+        function logIn(){   //회원가입 하고 난 후에 아이디와 비빌번호를 이용해 가입시도
+            event.preventDefault(); 
+            const user=JSON.parse(localStorage.getItem("user")); //키값인 user를 이용해 문자열 형태의 JSON을 객체로 변환.
+            if(user==null){ //유저가 null일시 다시입력
+                alert("회원가입을 해 주세요.");
+                return;
+            }
+            var storagePW = user.Password;
+            var storageID = user.ID;
+            var inputID = document.getElementById("ID");
+            var inputPW = document.getElementById("password");
+            var count = parseInt(document.getElementById("count").innerText); //여러번 시도해 악용하는 유저를 막기 위한 시도횟수 변수
+            var lock = false; //구글 캡차 API가 실행될 떄에는 로그인을 막을 변수
+            if (inputID.value =="" || inputPW.value=="") { //정상값이 들어오지 않았다면 다시 입력받음
+                alert("ID와 PW를 입력하세요.");
+                return;
+            }
+            if (count==5){  //5번의 시도가 일어났다면
+               lock =getKey();  //캡차 실행하고 컴퓨터가 아님을 확인 받아야 하는 getkey함수로 이동
+            }
+            else{   //5번의 시도가 아니라면
+                if(count==4){//5번시도 일어나고 숨겨뒀던 캡차 API를 visible하게 만듦.
+                    document.getElementById("five").style.display="block";
+                }
+                count++;    //시도 횟수 증가 동작
+                document.getElementsByClassName("try")[0].style.visibility = "visible";
+                document.getElementsByClassName("try")[0].innerText= count+"회 시도";
+                document.getElementById("count").textContent = count; 
+            }
+            if(!lock){
+                if( (inputID.value == storageID) && (inputPW.value == storagePW)){  //로그인이 성공했다면
+                    alert(inputID.value+"님 환영합니다.");
+                    location.href = 'TermProject.html'; //메인 화면으로 이동.
+                }
+         }
+        }
+
+      function getKey(){
+            var text = grecaptcha.getResponse();    //캡차의 사용자 response를 받음.
+				if (text =="") {    //로봇임을 인증하지 않았다면 다시 실행
+					alert ("'로봇이 아닙니다.'를 체크해주세요.");
+					return true;
+				} else {
+					location.reload(); //웹페이지를 리로드하여 count를 0으로 만든다.
+					return false;
+				}
+        }
+        function validateInputs(ID,PW) { //정상값이 들어왔는지 확인하는 함수
+            var valid = false;
+            
+            if (!ID.validity.valid || !PW.validity.valid) {   //id의 validity 체크
+                valid = true;
+                alert("등록할 ID와 PW를 다시 입력해주세요.");
+            } 
+            return valid;
+        }
+    </script>
+    <title>Login Page</title>
+</head>
+<body>
+    <h1>Mini Website</h1>
+<header>
+    <div class="loginForm">   <!-- 로그인 폼 -->
+     <form>
+        <label for="ID">ID: </label><input id="ID" type="text" name="ID" placeholder="ID" ><br>
+        <label for="password">PW: </label><input id="password" type="password" name="password" placeholder="password">
+        <div class="try">blck</div>
+        <input type="submit" value="회원가입" onclick="register()">
+        <input type="submit" value="로그인" onclick="logIn()">
+        <script src='https://www.google.com/recaptcha/api.js'></script> <!-- 캡차를 위한 script -->
+        <div id="five" class="g-recaptcha" data-sitekey="API KEY"></div> 
+        <!-- 로컬서버에서 구글캡차를 사용하기 위한 사이트 키 -->
+      </form>
+      <div id ="count">0</div>  <!-- 시도횟수 변수 -->
+    </div>
+</header>
+<footer>
+      <div id = "registerForm"> <!-- 회원가입 폼 -->
+        <form id ="register">
+            <label for="regID">ID: </label>
+            <input type="text" id= "regID" placeholder="Enter your ID" pattern="[a-zA-Z0-9]*" required>
+            <div class="error"></div>
+            <label for="regPW">PW: </label>
+            <input type="password" id= "regPW" placeholder="Enter your PW" pattern="[a-zA-Z0-9]*" required>
+            <div class="error"></div>
+            <label for="cities">지역: </label>
+            <select id ="cities" required>
+                <option value="Busan">Busan</option>
+                <option value="Daegu">Daegu</option>
+                <option value="Daejeon">Daejeon</option>
+                <option value="Gwangju">Gwangju</option>
+                <option value="Incheon">Incheon</option>
+                <option value="Seoul">Seoul</option>
+              </select><br>
+            <label for="male">남자</label>
+            <input type="radio" id="male" name= "regGender" value="male" checked="checked" >
+            <label for="female">여자</label>
+            <input type="radio" id="female" name= "regGender" value = "female" >
+            <br>
+            <input type="submit" value="제출" onclick="writeUser()">
+            <input type="reset" value="초기화" onclick=""><br>
+        </form>
+    </div>
+</footer>
+    
+</body>
+</html>

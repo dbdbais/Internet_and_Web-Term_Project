@@ -1,0 +1,441 @@
+<html> 
+    <head> 
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+      <style>
+           @media (max-width: 900px) {  /* 모바일 환경에서 헤더에 텍스트 추가 */
+            h1::before{
+                content: "Mobile ";
+                color:blue;
+            }
+            #profile::before{ /* pseudo-element */
+              content: "Mobile ";
+              font-size: 0.5em;
+            }
+            body{
+              width: 800px;
+              transform: scale(0.8); /* 요소를 80% 크기로 축소 */
+              transform-origin: top; /* 축소의 기준점을 상단으로 설정 */
+              font-size: 0.5em;
+            }
+          
+            section{  
+              padding: 40px;
+            }
+            nav{    /* 네비게이션 부분 미세조정 */
+              width:200px;
+              padding: 0px;
+              margin-left: 30px;
+              margin-bottom: 100px;
+            }
+            #schedule{  /* 달력 부분 미세조정 */
+              width:100px;
+              padding: 0px;
+              margin-right: 160px;
+            }
+            header{   /* 헤더 부분 화면과 같이 움직이게 변경 */
+              position: sticky;
+              top: 20;
+              z-index: 999;
+            }
+        }
+            body {  /* 가운데 정렬 column 정렬을 위한 css */
+              font-family: Arial, sans-serif;
+              max-width: 1060px;
+              align-items: center;
+              margin: 0 auto;
+              padding: 0;
+            }
+            div{  /* div 패딩설정 */
+              padding: 20px;
+            }
+            header {  /* 헤더 설정 */
+              border:1px solid dimgray;
+              background-color: #f2f2f2;
+              padding: 20px;
+              text-align: center;
+            }
+            header *{   /* 헤더 요소들 설정 */
+              width:100%;
+              border-radius: 10px;
+              padding: 20px;
+              margin: 5px;
+            }
+            nav{  /* 네비게이션 영역 float 왼쪽으로 설정 */
+              padding: 40px;
+              margin-left: 100px;
+              margin-top: 70px;
+              border: 1px solid black;
+              text-align: center;
+              float:left; 
+            }
+          
+            #schedule{  /* 일정 오른쪽에 float */
+              float:right;  
+            }
+            #middle_content{    /* 날씨 부분 div css */
+              clear: both;
+              text-align: center;
+              align-items: center;
+              border:1px solid lightskyblue;
+              background-color: mediumturquoise;
+            }
+
+    #profile {    /* 유저 아이디 프로필 출력 부분 */
+      margin-bottom: 10px;
+    }
+
+    .logout {   /* 로그아웃 레이블 */
+      margin-left: 10px;
+    } 
+    
+
+    #profile::after{  /* pseudo-element */
+              content: " 님 접속중" ;
+              font-size: 0.5em;
+            }
+
+    section { /* 네비게이션, 달력, 날씨를 포함하는 섹션 */
+      background-color: azure;
+      border: 1px solid blue;
+    }
+        table{  /* 테이블 크기(달력) */
+          width:200px;
+          height:200px;
+          border-collapse: collapse;
+        }
+        table, th, td{  /* 테이블과 테이블헤더 테이블요소 css */
+          border: 1px solid black;
+          text-align:center;
+        }
+        th:nth-child(1),td:nth-child(1){  /* pseudo-class 일요일 빨강으로 설정 */
+          color:red;
+        }
+        th:nth-child(7),td:nth-child(7){  /* pseudo-class 토요일 빨강으로 설정 */
+          color:blue;
+        }
+        #cc{  
+          display: none;
+        }
+        #specialDay{  /* 공휴일 출력 */
+          display: inline;
+          position: relative;
+          font-family: 'Courier New', Courier, monospace;
+          color: blue;
+          font-weight: bold;
+          left: 45px;
+          top:10px;
+        }
+        #holiday{   /* 공휴일 부분(달력) */
+          background-color: yellow;
+          font-weight: bold;
+          color: crimson;
+        }
+    input[type="text"],      /* 텍스트와 셀렉트 부분 css */
+    select {
+      padding: 7px 7px;
+    }
+        input[type="button"] {    /* 버튼 부분 css */
+      padding: 7px 7px;
+      background-color: cornflowerblue;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    
+    input[type="button"]:hover{   /* 버튼 올릴 시 css */
+      background-color:lightblue;
+    }
+    footer{   /* 푸터 부분 css */
+      background-color: #f2f2f2;; 
+      border:1px solid black;
+    }
+    #banner{  /* 배너 부분 css */
+      width: 100%;
+      height: 300px;
+    }
+    #banner img {/*  배너 이미지 출력 css */
+      width: 600px;
+      height: 280px;
+    }
+    #calender{   /*  달력 css */
+      margin-right: 200px;;
+      height: fit-content;
+      width: fit-content;
+      
+    }
+
+   figcaption{    /* 날씨 캡션 부분 */
+    font-weight: bolder;
+    font-size: 1em;
+   }
+  
+
+      </style>
+      <script>
+        const user=JSON.parse(localStorage.getItem("user")); //login에서 넣었던 JSON 객체를 가져온다
+        $(document).ready(function () { //Document가 로드 되었을 때, load함수로 화면에 element 출력
+	      load();
+      });
+
+          function enterInput(){ //엔터가 들어왔을 시 search 함수 nested function
+            if(event.keyCode == 13)
+            search();
+          }
+          function search(){  // 사용자의 검색 값과 플랫폼 정보를 받아와 그 플랫폼으로 검색
+            var link = document.getElementById("input_text").value;
+            var platform = document.getElementById("platform").value;
+            const naver ="Naver";
+            const google ="Google";
+            const daum ="Daum";
+            var st;
+            switch(platform){
+              case naver:
+              alert(naver+"로 검색합니다.");
+              st = "https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query="+link;
+              break;
+              case google:
+              alert(google+"로 검색합니다.");
+              st = "https://www.google.co.kr/search?q="+link;
+              break;
+              case daum:
+              alert(daum+"으로 검색합니다.");
+              st = "https://search.daum.net/search?w=tot&DA=YZR&t__nil_searchbox=btn&sug=&sugo=&sq=&o=&q="+link;
+              break;
+            }
+            window.location.href = st;
+          }
+
+          function prev(){  //calender 이전 달 이동
+            var idx = parseInt(document.getElementById("cc").innerText);
+
+            if(idx == 0){ //맨 왼쪽<-
+              alert("이전 달을 볼 수 없습니다.")
+            }
+            else if(idx ==1){//맨 왼쪽 <-중간
+              idx--;
+              document.getElementById("cc").innerText= idx;
+              document.getElementById("calender").innerHTML = '<table><caption><input type="button"class=""value="&lt"onclick="prev()"/>[5월]<input type="button"class=""value="&gt"onclick="next()"/></caption><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody><tr><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td id="holiday"onmouseover="getSpecialDay(5)"onmouseout="makeSpecialHidden()">5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr><tr><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr><tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td></tr><tr><td>28</td><td id="holiday"onmouseover="getSpecialDay(29)"onmouseout="makeSpecialHidden()">29</td><td>30</td><td>31</td><td></td><td></td><td></td></tr></tbody></table><div id="specialDay"></div>';
+            }
+            else if(idx==2){// 중간<-맨 오른쪽
+              idx--;
+              document.getElementById("cc").innerText= idx;
+              document.getElementById("calender").innerHTML ='<table><caption><input type="button"class=""value="&lt"onclick="prev()"/>[6월]<input type="button"class=""value="&gt"onclick="next()"/></caption><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td id="holiday"onmouseover="getSpecialDay(6)"onmouseout="makeSpecialHidden()">6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr><tr><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td></tr><tr><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr><tr><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td></td></tr></tbody></table><div id="specialDay"></div>';
+            }
+
+           
+        
+          }
+          function next(){  //calender 다음 달 이동
+            var idx = parseInt(document.getElementById("cc").innerText);
+            if(idx == 0){ //맨 왼쪽 -> 중간 
+              idx++;
+              document.getElementById("calender").innerHTML ='<table><caption><input type="button"class=""value="&lt"onclick="prev()"/>[6월]<input type="button"class=""value="&gt"onclick="next()"/></caption><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td id="holiday"onmouseover="getSpecialDay(6)"onmouseout="makeSpecialHidden()">6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr><tr><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td></tr><tr><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr><tr><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td><td></td></tr></tbody></table><div id="specialDay"></div>';
+              document.getElementById("cc").innerText= idx;
+            }
+            else if(idx ==1){ //중간-> 맨 오른쪽
+              idx++;
+              document.getElementById("calender").innerHTML = '<table><caption><input type="button"class=""value="&lt"onclick="prev()"/>[7월]<input type="button"class=""value="&gt"onclick="next()"/></caption><thead><tr><th>일</th><th>월</th><th>화</th><th>수</th><th>목</th><th>금</th><th>토</th></tr></thead><tbody><tr><td></td><td></td><td></td><td></td><td></td><td></td><td>1</td></tr><tr><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr><tr><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr><tr><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td></tr><tr><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td></tr><tr><td>30</td><td>31</td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><div id="specialDay"></div>';
+              document.getElementById("cc").innerText= idx;
+            }
+            else if(idx==2){  //맨 오른쪽->
+              alert("다음 달을 볼 수 없습니다.") //잘못된 동작 에러핸들링
+            }
+
+          }
+
+          function getSpecialDay(n){  //공휴일을 출력한다. (onmouseover)
+            var special = document.getElementById("specialDay");
+            special.style.visibility = "visible";
+            if(n==5){
+            special.textContent = "어린이 날";
+            }
+            else if(n==29){
+              special.textContent = "석가탄신일";
+            }
+            else if(n==6){
+              special.textContent = "현충일";
+            }
+
+          }
+          function makeSpecialHidden(){ //공휴일 출력 중지 (onmouseout)
+            var special = document.getElementById("specialDay");
+           special.style.visibility = "hidden";
+          }
+          var cities =[]; //API에서 지원하는 한국 도시
+          cities["Seoul"] = "서울"; //associative array 생성.
+          cities["Busan"] = "부산";
+          cities["Daegu"] = "대구";
+          cities["Daejeon"] = "대전";
+          cities["Incheon"] = "인천";
+          cities["Gwangju"] = "광주";
+
+          function load(){  //로드하는 함수의 총집합
+            loadProfile();
+            loadWeather();
+            loadBanner();
+          }
+          function loadProfile(){  //유저의 아이디를 가져와 코멘트를 띄운다.
+            var profile= document.getElementById("profile");
+            profile.textContent = "user "+user.ID;
+          }
+          function loadBanner(){  //성별에 따라 배너를 띄운다.
+            if(user.Gender =="male"){ //남자일 경우 무신사, 클릭 시 사이트로 이동.
+           document.getElementById("banAnchor").setAttribute("href","https://www.musinsa.com/app/?NaPm=ct%3Dl42wmofn%7Cci%3Dcheckout%7Ctr%3Dds%7Ctrx%3D%7Chk%3Dbe87aaa0c308aee5bcf3b2978d51738647efefa3");
+           document.getElementById("banImage").setAttribute("src","https://search.pstatic.net/common/?src=http%3A%2F%2Fimgnews.naver.net%2Fimage%2F5721%2F2022%2F03%2F22%2F0000043876_001_20220322090603434.jpg&type=sc960_832");
+          }
+          else if(user.Gender == "female"){ //여자일 경우 에이블리, 클릭 시 사이트로 이동.
+            document.getElementById("banAnchor").setAttribute("href","https://m.a-bly.com/?NaPm=ct%3Dlicg91qo%7Cci%3Dcheckout%7Ctr%3Dds%7Ctrx%3Dnull%7Chk%3Df4cae818a5b7d2ac8f571a6c76d8f6eb6f86264c");
+           document.getElementById("banImage").setAttribute("src","https://platum.kr/wp-content/uploads/2021/06/ably.jpg");
+          }
+        }
+          function loadWeather(){ /*Open Weather API, 회원가입의 지역정보를 바탕으로 현재 지역 날씨 정보들 출력
+            (위치기반으로 받을 수 있지만 여러 지역을 보여주기 위해 폼으로 입력받음)*/
+          const API_KEY = 'API KEY'; //고정 API키
+            var city =user.City;  //도시 정보
+            var apiURI = "http://api.openweathermap.org/data/2.5/weather?q="+city+"&appid="+API_KEY;  //최종 URI
+            var xhttp = new XMLHttpRequest(); 
+            xhttp.onreadystatechange = function(){
+              if (this.readyState ==4 && this.status == 200){  //request finished status OK
+                var info = JSON.parse(this.responseText); //Json값 text로 변환하여 받는다.
+                var descript = info.weather[0].description; //날씨의 설명을 가져온다.
+                var curTemp = (info.main.temp-273.15).toFixed(1)+"℃"; // 현재 기온
+                var maxTemp = (info.main.temp_max-273.15).toFixed(1)+"℃";// 최고 기온
+                var minTemp = (info.main.temp_min-273.15).toFixed(1)+"℃";  // 최저기온
+                var feelTemp = (info.main.feels_like-273.15).toFixed(1)+"℃"; // 체감 기온
+                var humidity = (info.main.humidity).toFixed(0)+"%"; // 습도
+                var icon = info.weather[0].icon;  //icon 받아온다.
+                const iconAddress = "http://openweathermap.org/img/wn/"+icon+"@2x.png"; //icon의 소스주소를 가져온다.
+                document.getElementById("weatherIcon").setAttribute("src",iconAddress); //weatherIcon의 속성을 수정한다.
+                document.getElementById("cast").innerText ="지역: "+cities[city]+ "\n날씨: "+descript+"\n 현재기온: "+curTemp
+                +"\n최고기온: "+maxTemp+"\n최저기온: "+minTemp+"\n체감기온: "+feelTemp+"\n습도: "+humidity;
+                //API로 받아온 정보를 출력한다.
+              }
+              else{
+                document.getElementById("cast").innerText = "API 연결 중입니다..";
+                /* alert("API 연결 중입니다.");  */ /* API 연결 오류 시 */
+              }
+          };
+          xhttp.open("GET",apiURI,true);  //get형식으로 받아온다.
+          xhttp.send();
+        }
+        function logOut(){  //로그아웃 버튼을 눌렀을 때, login창으로 이동.
+          location.href = 'login.html';
+        }
+        function dropUser(){  //지금 유저의 정보가 저장되어 있는 localStorage를 clear하고 login창으로 이동한다.
+          localStorage.clear();
+          location.href = 'login.html';
+        }
+      </script>
+
+      <title>Term-Project</title>
+    </head>
+  <body> 
+    
+    <header>
+      <h1 style="font-size: x-large;">Mini Website</h1>
+        <input id ="input_text" type="text" name ="search" placeholder="입력" onkeydown="enterInput()"/>
+        <select id ="platform" required>
+          <option value="Naver">Naver</option>
+          <option value="Google">Google</option>
+          <option value="Daum">Daum</option>
+        </select>
+        <input type ="button" class ="magnifier" value="검색" onclick="search()"/>
+    </header>
+    <section>
+      <nav style="font-weight: bolder;">  
+        <div id="profile"></div>
+        <input type ="button" class ="logout" value="로그아웃" onclick="logOut()"/>
+        <input type ="button" class ="logout" value="회원탈퇴" onclick="dropUser()"/>
+      </nav>
+        <div id = "schedule">
+          <div id="cc">0</div>
+          <div id="calender">
+            <table>
+              <caption>
+                <input type ="button" class ="" value="&lt" onclick="prev()"/>[5월]<input type ="button" class ="" value="&gt" onclick="next()"/>
+              </caption>
+              <thead>
+                <tr>
+                  <th>일</th>
+                  <th>월</th>
+                  <th>화</th>
+                  <th>수</th>
+                  <th>목</th>
+                  <th>금</th>
+                  <th>토</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td></td>
+                  <td>1</td>
+                  <td>2</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td id="holiday" onmouseover="getSpecialDay(5)" onmouseout="makeSpecialHidden()">5</td>
+                  <td>6</td>
+                </tr>
+                <tr>
+                  <td>7</td>
+                  <td>8</td>
+                  <td>9</td>
+                  <td>10</td>
+                  <td>11</td>
+                  <td>12</td>
+                  <td>13</td>
+                </tr>
+                <tr>
+                  <td>14</td>
+                  <td>15</td>
+                  <td>16</td>
+                  <td>17</td>
+                  <td>18</td>
+                  <td>19</td>
+                  <td>20</td>
+                </tr>
+                <tr>
+                  <td>21</td>
+                  <td>22</td>
+                  <td>23</td>
+                  <td>24</td>
+                  <td>25</td>
+                  <td>26</td>
+                  <td>27</td>
+                </tr>
+                <tr>
+                  <td>28</td>
+                  <td id="holiday" onmouseover="getSpecialDay(29)" onmouseout="makeSpecialHidden()">29</td>
+                  <td>30</td>
+                  <td>31</td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+            <div id="specialDay"></div>
+          </div>
+          
+        </div>
+        <figure id ="middle_content">
+          <img id="weatherIcon" style="display: inline-block; margin: 0 auto;">
+          <figcaption>현재 날씨</figcaption>
+            <div id = cast></div>
+        </figure>  
+      </section>
+
+    <footer>
+        <div id = "banner">
+          <a id="banAnchor" href="">
+            <img id="banImage" src="" style="display: block; margin: 0 auto;">
+          </a>
+        </div>
+    </footer>
+     
+  </body> 
+</html>
+
