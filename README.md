@@ -7,7 +7,7 @@ OpenWeather API, Google Re-Captcha API
 
 ## 3. 구현
 
-**<p align="center">[로그인]<p>**
+**<p align="center">[로그인, 회원가입]<p>**
 ![로그인](https://github.com/dbdbais/ProblemSolving/assets/99540674/2698b6a2-17ef-4448-8054-f9168b0ec70d)
 **<p align="center">[부산 사는 남자 회원]<p>**
 ![남자](https://github.com/dbdbais/ProblemSolving/assets/99540674/50222496-37a6-4d9a-bef4-054fd6f6e6a9)
